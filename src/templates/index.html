@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Parcel & OSM Analyzer</title>
+
+  <!-- Mapbox GL CSS -->
+  <link href="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.css" rel="stylesheet">
+  <!-- Mapbox Draw CSS -->
+  <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.5.0/mapbox-gl-draw.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+  <header>
+    <h1>Parcel & OSM Analyzer</h1>
+    <p>Upload a parcel layer, see its extent, draw an area, then analyze parcels + OSM amenities.</p>
+  </header>
+
+  <div id="controls">
+    <form id="upload-form">
+      <label class="file-label">
+        Parcels file (.gpkg / .zip / .shp / .geojson):
+        <input type="file" id="parcels-file" name="parcels_file" />
+      </label>
+      <button type="submit" id="btn-upload">Upload Parcels</button>
+    </form>
+
+    <button id="btn-clear-selection" disabled>Clear Selection</button>
+    <button id="btn-analyze" disabled>Analyze Selection</button>
+
+    <span id="status">No parcels loaded.</span>
+  </div>
+
+  <div id="map-wrap">
+    <div id="map"></div>
+
+    <!-- Right sidebar -->
+    <aside id="sidebar" class="sidebar sidebar--hidden sidebar--collapsed">
+      <div class="sidebar__header">
+        <div class="sidebar__title">Requirements</div>
+        <button id="sidebar-toggle" class="sidebar__toggle" title="Open/Close">⟷</button>
+      </div>
+
+      <div class="sidebar__body">
+        <!-- Legend + show-all toggle -->
+        <div class="legend">
+          <label class="legend__showall">
+            <input type="checkbox" id="chk-show-all" checked />
+            Show all amenities
+          </label>
+          <div id="amenity-legend-items" class="legend-items"></div>
+        </div>
+
+        <div id="requirements-empty" class="muted">
+          No requirements yet. Click + to add one.
+        </div>
+
+        <div id="requirements-list" class="requirements-list"></div>
+
+        <button id="btn-add-requirement" class="btn-add" title="Add Requirement">+</button>
+      </div>
+    </aside>
+
+    <!-- Modal -->
+    <div id="modal-backdrop" class="modal-backdrop hidden">
+      <div class="modal" role="dialog" aria-modal="true">
+        <div class="modal__header">
+          <div id="modal-title" class="modal__title">Add Requirement</div>
+          <button id="modal-close" class="modal__close" title="Close">✕</button>
+        </div>
+        <div id="modal-content" class="modal__content"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mapbox GL JS -->
+  <script src="https://api.mapbox.com/mapbox-gl-js/v3.0.1/mapbox-gl.js"></script>
+  <!-- Mapbox Draw JS -->
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-draw/v1.5.0/mapbox-gl-draw.js"></script>
+
+  <script>
+    window.MAPBOX_TOKEN = "{{ mapbox_token }}";
+  </script>
+
+  <script type="module" src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
