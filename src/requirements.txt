@@ -1,0 +1,9 @@
+Flask>=3.0.0
+geopandas>=0.14.0
+shapely>=2.0.1
+fiona>=1.9.5
+pyproj>=3.6.0
+pandas>=2.1.0
+numpy>=1.26.0
+requests>=2.31.0
+python-dotenv>=1.0.1
