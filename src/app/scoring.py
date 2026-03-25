@@ -210,7 +210,7 @@ def score_parcels(
     for c in counts_df.columns:
         counts_df[c] = counts_df[c].astype(int)
 
-    # scoring (NOTE: operator "not_within" not used for score yet — only counts)
+    # scoring: "within" adds, "not_within" subtracts
     score_raw = pd.Series(0.0, index=counts_df.index)
     weights_out = []
     for i, req in enumerate(active):
@@ -219,7 +219,11 @@ def score_parcels(
         gs = group_sums.get(rid)
         if gs is None:
             gs = pd.Series(0.0, index=counts_df.index)
-        score_raw = score_raw + (w * gs)
+
+        operator = (req.get("operator") or "within").lower()
+        sign = -1.0 if operator == "not_within" else 1.0
+
+        score_raw = score_raw + (sign * w * gs)
 
         weights_out.append({
             "id": rid,

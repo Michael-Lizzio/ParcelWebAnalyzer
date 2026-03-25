@@ -126,6 +126,206 @@ export function amenityEmoji(amenity) {
     case "ferry_terminal":
       return "⛴️";
 
+    // Parks & Recreation (leisure tags)
+    case "park":
+    case "landuse_park":
+      return "🌳";
+    case "playground":
+      return "🛝";
+    case "sports_centre":
+    case "pitch":
+    case "stadium":
+    case "track":
+      return "⚽";
+    case "swimming_pool":
+      return "🏊";
+    case "fitness_centre":
+    case "fitness_station":
+      return "💪";
+    case "dog_park":
+      return "🐕";
+    case "golf_course":
+      return "⛳";
+    case "garden":
+      return "🌻";
+    case "nature_reserve":
+      return "🌲";
+    case "marina":
+      return "⛵";
+    case "slipway":
+      return "🚤";
+    case "horse_riding":
+      return "🐴";
+    case "fishing":
+      return "🎣";
+    case "landuse_recreation_ground":
+    case "landuse_village_green":
+      return "🏞️";
+    case "schoolyard":
+      return "🏫";
+    case "bleachers":
+      return "🪑";
+    case "outdoor_seating":
+      return "🪑";
+    case "picnic_table":
+      return "🧺";
+    case "firepit":
+      return "🔥";
+    case "bowling_alley":
+      return "🎳";
+
+    // Transit (public_transport, railway, highway=bus_stop)
+    case "transit_stop_position":
+    case "transit_platform":
+    case "transit_bus_stop":
+      return "🚏";
+    case "transit_station":
+    case "transit_rail":
+    case "transit_tram_stop":
+      return "🚉";
+    case "bus_station":
+      return "🚌";
+
+    // Shops (shop_*)
+    case "shop_bakery":
+      return "🥖";
+    case "shop_pharmacy":
+    case "shop_chemist":
+      return "💊";
+    case "shop_clothes":
+      return "👕";
+    case "shop_books":
+      return "📚";
+    case "shop_electronics":
+      return "💻";
+    case "shop_furniture":
+      return "🛋️";
+    case "shop_florist":
+      return "💐";
+    case "shop_mall":
+    case "shop_department_store":
+      return "🏬";
+    case "shop_bicycle":
+      return "🚲";
+    case "shop_hardware":
+    case "shop_doityourself":
+      return "🔨";
+    case "shop_jewelry":
+      return "💍";
+    case "shop_shoes":
+      return "👞";
+    case "shop_toys":
+      return "🧸";
+    case "shop_pet":
+    case "shop_pet_grooming":
+      return "🐾";
+    case "shop_butcher":
+      return "🥩";
+    case "shop_hairdresser":
+    case "shop_beauty":
+      return "💇";
+    case "shop_wine":
+    case "shop_alcohol":
+      return "🍷";
+    case "shop_cannabis":
+      return "🌿";
+    case "shop_art":
+      return "🎨";
+    case "shop_car_repair":
+      return "🔧";
+    case "shop_coffee":
+      return "☕";
+    case "shop_greengrocer":
+      return "🥬";
+    case "shop_pastry":
+      return "🧁";
+    case "shop_deli":
+      return "🥪";
+
+    // Tourism (tourism_*)
+    case "tourism_museum":
+      return "🏛️";
+    case "tourism_hotel":
+    case "tourism_motel":
+      return "🏨";
+    case "tourism_attraction":
+      return "🎡";
+    case "tourism_viewpoint":
+      return "👁️";
+    case "tourism_gallery":
+      return "🖼️";
+    case "tourism_artwork":
+      return "🗿";
+    case "tourism_picnic_site":
+      return "🧺";
+    case "tourism_information":
+      return "ℹ️";
+
+    // Healthcare (healthcare_*)
+    case "healthcare_clinic":
+    case "healthcare_doctor":
+      return "🩺";
+    case "healthcare_dentist":
+      return "🦷";
+    case "healthcare_pharmacy":
+      return "💊";
+    case "healthcare_hospital":
+    case "hospital":
+      return "🏥";
+    case "healthcare_physiotherapist":
+      return "💆";
+    case "healthcare_optometrist":
+      return "👓";
+    case "healthcare_alternative":
+      return "🌿";
+
+    // Emergency (emergency_*)
+    case "emergency_fire_station":
+    case "fire_station":
+      return "🚒";
+    case "emergency_police":
+    case "police":
+      return "🚓";
+    case "emergency_ambulance_station":
+      return "🚑";
+    case "emergency_defibrillator":
+      return "❤️";
+    case "emergency_fire_hydrant":
+      return "🚰";
+
+    // Historic (historic_*)
+    case "historic_monument":
+    case "historic_memorial":
+      return "🗿";
+    case "historic_ruins":
+      return "🏛️";
+    case "historic_castle":
+      return "🏰";
+    case "historic_building":
+      return "🏛️";
+
+    // Offices (office_*)
+    case "office_government":
+      return "🏛️";
+    case "office_lawyer":
+      return "⚖️";
+    case "office_estate_agent":
+      return "🏠";
+
+    // Craft (craft_*)
+    case "craft_brewery":
+      return "🍺";
+    case "craft_winery":
+      return "🍷";
+
+    // Arts & Entertainment
+    case "nightclub":
+      return "🕺";
+    case "theatre":
+      return "🎭";
+    case "arts_centre":
+      return "🎨";
+
     // Default
     default:
       return "•";

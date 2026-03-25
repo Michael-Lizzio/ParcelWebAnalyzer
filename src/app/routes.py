@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 import os
+import json
+import tempfile
+import zipfile
 from pathlib import Path
 from tempfile import NamedTemporaryFile
 
@@ -10,6 +13,8 @@ from flask import (
     render_template,
     request,
     jsonify,
+    send_file,
+    Response,
 )
 
 from .config import Config
@@ -132,3 +137,82 @@ def api_set_requirements():
 
     save_requirements(Config.PARCELS_DIR, run_id, reqs)
     return jsonify({"ok": True})
+
+
+@bp.post("/api/score")
+def api_score():
+    """
+    Score parcels based on proximity to amenities using active requirements.
+    Returns scored parcels with count fields and normalized scores.
+    """
+    from .scoring import score_parcels
+
+    data = request.get_json() or {}
+    run_id = data.get("run_id")
+    requirements = data.get("requirements", [])
+    parcels_geojson = data.get("parcels_geojson")
+    amenities_geojson = data.get("amenities_geojson")
+
+    if not run_id:
+        return jsonify({"error": "Missing run_id"}), 400
+    if not parcels_geojson:
+        return jsonify({"error": "Missing parcels_geojson"}), 400
+    if not amenities_geojson:
+        return jsonify({"error": "Missing amenities_geojson"}), 400
+
+    try:
+        result = score_parcels(parcels_geojson, amenities_geojson, requirements)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@bp.post("/api/download")
+def api_download():
+    """
+    Download scored parcels as GeoJSON or Shapefile.
+    """
+    from .scoring import _gdf_from_geojson
+
+    data = request.get_json() or {}
+    parcels_geojson = data.get("parcels_geojson")
+    fmt = data.get("format", "geojson")
+    run_id = data.get("run_id", "parcels")
+
+    if not parcels_geojson:
+        return jsonify({"error": "Missing parcels_geojson"}), 400
+
+    if fmt == "geojson":
+        # Return as JSON file
+        output = json.dumps(parcels_geojson, indent=2)
+        return Response(
+            output,
+            mimetype="application/geo+json",
+            headers={"Content-Disposition": f'attachment; filename="{run_id}_scored.geojson"'}
+        )
+    elif fmt == "shapefile":
+        # Convert to GeoDataFrame, write to temp shapefile, zip, return
+        try:
+            gdf = _gdf_from_geojson(parcels_geojson)
+
+            with tempfile.TemporaryDirectory() as tmpdir:
+                shp_path = Path(tmpdir) / f"{run_id}_scored.shp"
+                gdf.to_file(shp_path, driver="ESRI Shapefile")
+
+                zip_path = Path(tmpdir) / f"{run_id}_scored.zip"
+                with zipfile.ZipFile(zip_path, 'w') as zf:
+                    for ext in ['.shp', '.shx', '.dbf', '.prj', '.cpg']:
+                        file = shp_path.with_suffix(ext)
+                        if file.exists():
+                            zf.write(file, file.name)
+
+                return send_file(
+                    zip_path,
+                    mimetype="application/zip",
+                    as_attachment=True,
+                    download_name=f"{run_id}_scored.zip"
+                )
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+    else:
+        return jsonify({"error": "Invalid format. Use 'geojson' or 'shapefile'"}), 400

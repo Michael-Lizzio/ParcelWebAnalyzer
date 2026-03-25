@@ -415,3 +415,82 @@ button:hover:not([disabled]) {
 .modal-actions .btn-danger:hover {
   background: #b91c1c;
 }
+
+/* Process Requirements Section */
+.process-section {
+  margin: 1rem 0;
+  padding: 1rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.process-header {
+  margin-bottom: 0.5rem;
+}
+
+.process-status {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.process-status:before {
+  content: "● ";
+}
+
+/* Status colors - using classes since we can't rely on attributes */
+.process-status.status-none:before { color: #9ca3af; }
+.process-status.status-current:before { color: #22c55e; }
+.process-status.status-outdated:before { color: #f97316; }
+
+.btn-primary {
+  width: 100%;
+  padding: 0.5rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.btn-primary:hover {
+  background-color: #2563eb;
+}
+
+.btn-primary:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.download-section {
+  margin-top: 1rem;
+}
+
+.download-section h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.download-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.download-buttons .btn-secondary {
+  flex: 1;
+  padding: 0.5rem;
+  background-color: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.download-buttons .btn-secondary:hover {
+  background-color: #e5e7eb;
+}

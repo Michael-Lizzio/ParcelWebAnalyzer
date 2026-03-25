@@ -33,6 +33,11 @@ export function initApp() {
     btnClearSelection.disabled = true;
 
     state.lastAmenitiesGeojson = null;
+    state.lastParcelsGeojson = null;
+    state.scoredParcelsPoints = null;
+    state.scoredParcelsPolygons = null;
+    state.lastScoredHash = null;
+
     requirementsReset();
   });
 
@@ -91,6 +96,12 @@ export function initApp() {
       showAnalysisResults(result.parcels, result.amenities);
 
       state.lastAmenitiesGeojson = result.amenities;
+      state.lastParcelsGeojson = result.parcels;
+
+      // Reset scoring state when new analysis is done
+      state.scoredParcelsPoints = null;
+      state.scoredParcelsPolygons = null;
+      state.lastScoredHash = null;
 
       statusEl.textContent =
         `Analysis done. Parcels: ${result.parcels.features.length}, amenities: ${result.amenities.features.length}.`;

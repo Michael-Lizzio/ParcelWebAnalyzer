@@ -2,7 +2,15 @@
 
 export const state = {
   runId: null,
-  lastAmenitiesGeojson: null
+  lastAmenitiesGeojson: null,
+  lastParcelsGeojson: null,
+  scoredParcelsPoints: null,
+  scoredParcelsPolygons: null,
+  scoreWeights: [],
+  countsFields: [],
+  requirementsHash: null,
+  lastScoredHash: null,
+  selectedParcelId: null
 };
 
 export const layerConfig = {
@@ -12,5 +20,8 @@ export const layerConfig = {
   parcelsLayerId: "parcels-lines",
   amenitiesSourceId: "amenities",
   amenitiesPointsLayerId: "amenities-points",
-  amenitiesSymbolsLayerId: "amenities-symbols"
+  amenitiesSymbolsLayerId: "amenities-symbols",
+  scoredParcelsSourceId: "scored-parcels",
+  scoredParcelsLayerId: "scored-parcels-fill",
+  scoredParcelsOutlineLayerId: "scored-parcels-outline"
 };

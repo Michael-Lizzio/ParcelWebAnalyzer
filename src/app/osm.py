@@ -12,13 +12,21 @@ def fetch_osm_amenities_bbox(
     timeout: int = 60,
 ) -> Dict[str, Any]:
     """
-    Fetch OSM 'amenities' for a bbox from the Overpass API and return
+    Fetch ALL OSM amenities/POIs for a bbox from the Overpass API and return
     a GeoJSON FeatureCollection.
 
     We include:
-      - anything with amenity=*
-      - shops tagged as supermarket / convenience
-      - landuse=school (for school campuses that aren't tagged amenity=school)
+      - amenity=* (restaurants, cafes, schools, hospitals, etc.)
+      - shop=* (all shop types: bakery, pharmacy, mall, etc.)
+      - leisure=* (parks, playgrounds, sports_centre, swimming_pool, etc.)
+      - tourism=* (museums, attractions, hotels, viewpoints, etc.)
+      - public_transport=*, railway=*, highway=bus_stop (transit)
+      - healthcare=* (clinics, doctors, dentists, etc.)
+      - office=* (government, company offices)
+      - craft=* (artisans, workshops)
+      - emergency=* (fire stations, police)
+      - historic=* (monuments, memorials)
+      - landuse=* (parks, recreation_ground, village_green)
 
     Nodes, ways, and relations are all returned; ways/relations use their
     computed 'center' as point geometry.
@@ -29,8 +37,18 @@ def fetch_osm_amenities_bbox(
     [out:json][timeout:25];
     (
       nwr["amenity"]({south},{west},{north},{east});
-      nwr["shop"]["shop"~"supermarket|convenience"]({south},{west},{north},{east});
-      nwr["landuse"="school"]({south},{west},{north},{east});
+      nwr["shop"]({south},{west},{north},{east});
+      nwr["leisure"]({south},{west},{north},{east});
+      nwr["tourism"]({south},{west},{north},{east});
+      nwr["public_transport"]({south},{west},{north},{east});
+      nwr["railway"]({south},{west},{north},{east});
+      nwr["highway"="bus_stop"]({south},{west},{north},{east});
+      nwr["healthcare"]({south},{west},{north},{east});
+      nwr["office"]({south},{west},{north},{east});
+      nwr["craft"]({south},{west},{north},{east});
+      nwr["emergency"]({south},{west},{north},{east});
+      nwr["historic"]({south},{west},{north},{east});
+      nwr["landuse"]["landuse"~"park|recreation_ground|village_green"]({south},{west},{north},{east});
     );
     out center;
     """
@@ -75,22 +93,80 @@ def fetch_osm_amenities_bbox(
 
         tags = el.get("tags", {}).copy()
 
-        # Normalize to make sure we always have an 'amenity' to drive your UI
+        # Normalize to make sure we always have an 'amenity' field to drive the UI
+        # We'll use the most specific tag available
         amenity = tags.get("amenity")
         shop = tags.get("shop")
+        leisure = tags.get("leisure")
+        tourism = tags.get("tourism")
+        public_transport = tags.get("public_transport")
+        railway = tags.get("railway")
+        highway = tags.get("highway")
+        healthcare = tags.get("healthcare")
+        office = tags.get("office")
+        craft = tags.get("craft")
+        emergency = tags.get("emergency")
+        historic = tags.get("historic")
         landuse = tags.get("landuse")
 
-        # Treat supermarkets / convenience stores as a "grocery_store" amenity
-        if not amenity and shop in {"supermarket", "convenience"}:
-            amenity = "grocery_store"
+        # If amenity already exists, use it
+        if amenity:
+            pass  # already have amenity field
+
+        # Map other tag types to 'amenity' field for UI consistency
+        elif shop:
+            # Special case: map supermarkets/convenience to grocery_store
+            if shop in {"supermarket", "convenience"}:
+                amenity = "grocery_store"
+            else:
+                amenity = f"shop_{shop}"  # e.g., "shop_bakery", "shop_pharmacy"
             tags["amenity"] = amenity
 
-        # Treat landuse=school as a 'school' amenity if no amenity already
-        if not amenity and landuse == "school":
-            amenity = "school"
+        elif leisure:
+            amenity = leisure  # e.g., "park", "playground", "sports_centre"
             tags["amenity"] = amenity
 
-        # If we still don't have an amenity, skip – it's not useful for your UI
+        elif tourism:
+            amenity = f"tourism_{tourism}"  # e.g., "tourism_museum", "tourism_hotel"
+            tags["amenity"] = amenity
+
+        elif public_transport:
+            amenity = f"transit_{public_transport}"  # e.g., "transit_stop_position"
+            tags["amenity"] = amenity
+
+        elif railway:
+            amenity = f"transit_{railway}"  # e.g., "transit_station"
+            tags["amenity"] = amenity
+
+        elif highway == "bus_stop":
+            amenity = "transit_bus_stop"
+            tags["amenity"] = amenity
+
+        elif healthcare:
+            amenity = f"healthcare_{healthcare}"  # e.g., "healthcare_clinic", "healthcare_dentist"
+            tags["amenity"] = amenity
+
+        elif office:
+            amenity = f"office_{office}"  # e.g., "office_government"
+            tags["amenity"] = amenity
+
+        elif craft:
+            amenity = f"craft_{craft}"  # e.g., "craft_bakery"
+            tags["amenity"] = amenity
+
+        elif emergency:
+            amenity = f"emergency_{emergency}"  # e.g., "emergency_fire_station"
+            tags["amenity"] = amenity
+
+        elif historic:
+            amenity = f"historic_{historic}"  # e.g., "historic_monument"
+            tags["amenity"] = amenity
+
+        elif landuse in {"park", "recreation_ground", "village_green"}:
+            amenity = f"landuse_{landuse}"  # e.g., "landuse_park"
+            tags["amenity"] = amenity
+
+        # If we still don't have an amenity, skip
         if not amenity:
             continue
 

@@ -71,8 +71,36 @@ export function openAmenitySelectModal() {
 
   const used = getUsedAmenitiesSet();
 
+  // Priority list: most interesting amenities first (for home buying)
+  const priorityAmenities = [
+    "school", "kindergarten", "university", "college",
+    "park", "landuse_park", "playground", "dog_park",
+    "grocery_store",
+    "restaurant", "cafe", "bar", "pub", "fast_food",
+    "pharmacy", "hospital", "clinic", "doctors", "dentist",
+    "library", "community_centre",
+    "transit_bus_stop", "transit_station", "bus_station",
+    "bank", "post_office"
+  ];
+
   const types = Object.keys(amenityCounts);
-  types.sort((a, b) => amenityCounts[b] - amenityCounts[a]);
+
+  // Custom sort: priority amenities first, then by count
+  types.sort((a, b) => {
+    const aPriority = priorityAmenities.indexOf(a);
+    const bPriority = priorityAmenities.indexOf(b);
+
+    // If both are priority amenities, sort by their position in the priority list
+    if (aPriority !== -1 && bPriority !== -1) {
+      return aPriority - bPriority;
+    }
+    // If only 'a' is priority, put it first
+    if (aPriority !== -1) return -1;
+    // If only 'b' is priority, put it first
+    if (bPriority !== -1) return 1;
+    // Otherwise sort by count (descending)
+    return amenityCounts[b] - amenityCounts[a];
+  });
 
   const title = document.createElement("div");
   title.className = "modal-step-title";

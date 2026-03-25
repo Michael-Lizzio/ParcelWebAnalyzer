@@ -51,3 +51,50 @@ export async function setRequirements(runId, requirements) {
 
   return await resp.json(); // { ok: true }
 }
+
+export async function scoreSelection(runId, requirements, parcelsGeojson, amenitiesGeojson) {
+  const resp = await fetch("/api/score", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      run_id: runId,
+      requirements: requirements,
+      parcels_geojson: parcelsGeojson,
+      amenities_geojson: amenitiesGeojson
+    })
+  });
+
+  if (!resp.ok) {
+    throw new Error(`Score failed: ${resp.status}`);
+  }
+
+  return await resp.json(); // { parcels_scored_points, parcels_scored_polygons, weights, counts_fields }
+}
+
+export async function downloadParcels(runId, parcelsGeojson, format) {
+  const resp = await fetch("/api/download", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      run_id: runId,
+      parcels_geojson: parcelsGeojson,
+      format: format
+    })
+  });
+
+  if (!resp.ok) {
+    throw new Error(`Download failed: ${resp.status}`);
+  }
+
+  const blob = await resp.blob();
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = format === "geojson"
+    ? `${runId}_scored.geojson`
+    : `${runId}_scored.zip`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  window.URL.revokeObjectURL(url);
+}

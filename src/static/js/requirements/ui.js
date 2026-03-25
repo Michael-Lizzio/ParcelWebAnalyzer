@@ -19,7 +19,9 @@ import {
   deriveDefaultLabel
 } from "./model.js";
 import { initRequirementModals, openAmenitySelectModal, openConfigureModal } from "./modals.js";
-import { updateAmenitiesStyling } from "../map.js";
+import { updateAmenitiesStyling, showScoredParcels, clearScoredParcels } from "../map.js";
+import { scoreSelection, downloadParcels } from "../api.js";
+import { state } from "../state.js";
 
 let sidebarEl = null;
 let sidebarToggleBtn = null;
@@ -77,11 +79,35 @@ export function initRequirementsUI() {
     openAmenitySelectModal();
   });
 
+  // process requirements button
+  const btnProcessReqs = document.getElementById("btn-process-requirements");
+  if (btnProcessReqs) {
+    btnProcessReqs.addEventListener("click", async () => {
+      await processRequirements();
+    });
+  }
+
+  // download buttons
+  const btnDownloadGeoJSON = document.getElementById("btn-download-geojson");
+  if (btnDownloadGeoJSON) {
+    btnDownloadGeoJSON.addEventListener("click", async () => {
+      await downloadScoredParcels("geojson");
+    });
+  }
+
+  const btnDownloadShapefile = document.getElementById("btn-download-shapefile");
+  if (btnDownloadShapefile) {
+    btnDownloadShapefile.addEventListener("click", async () => {
+      await downloadScoredParcels("shapefile");
+    });
+  }
+
   // modals, with callback when requirements change
   initRequirementModals({
     onChange: () => {
       renderRequirementsList();
       updateLegendAndMapColors();
+      updateProcessStatus();
     }
   });
 
@@ -284,4 +310,111 @@ function updateLegendAndMapColors() {
   }
 
   updateAmenitiesStyling(amenityColorEntries, showAll);
+}
+
+// ---------- process requirements and scoring ----------
+
+async function processRequirements() {
+  const requirements = getRequirements();
+  const activeReqs = requirements.filter(r => r.active);
+
+  if (activeReqs.length === 0) {
+    alert("No active requirements to process");
+    return;
+  }
+
+  if (!state.lastParcelsGeojson || !state.lastAmenitiesGeojson) {
+    alert("No parcels or amenities loaded. Run analysis first.");
+    return;
+  }
+
+  const statusEl = document.getElementById("status");
+  const btnProcessReqs = document.getElementById("btn-process-requirements");
+
+  try {
+    statusEl.textContent = "Processing requirements...";
+    btnProcessReqs.disabled = true;
+
+    // Call scoring API
+    const result = await scoreSelection(
+      state.runId,
+      activeReqs,
+      state.lastParcelsGeojson,
+      state.lastAmenitiesGeojson
+    );
+
+    // Store results in state
+    state.scoredParcelsPoints = result.parcels_scored_points;
+    state.scoredParcelsPolygons = result.parcels_scored_polygons;
+    state.scoreWeights = result.weights;
+    state.countsFields = result.counts_fields;
+    state.lastScoredHash = state.requirementsHash;
+
+    // Render scored parcels on map
+    clearScoredParcels();
+    showScoredParcels(
+      state.scoredParcelsPolygons,
+      state.scoredParcelsPoints
+    );
+
+    statusEl.textContent = `Scored ${result.parcels_scored_polygons.features.length} parcels.`;
+    updateProcessStatus();
+
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = "Error processing requirements.";
+  } finally {
+    btnProcessReqs.disabled = false;
+  }
+}
+
+async function downloadScoredParcels(format) {
+  if (!state.scoredParcelsPolygons) {
+    alert("No scored parcels to download. Process requirements first.");
+    return;
+  }
+
+  const statusEl = document.getElementById("status");
+  try {
+    statusEl.textContent = `Downloading ${format}...`;
+    await downloadParcels(state.runId, state.scoredParcelsPolygons, format);
+    statusEl.textContent = `Download complete.`;
+  } catch (err) {
+    console.error(err);
+    statusEl.textContent = `Download failed: ${err.message}`;
+  }
+}
+
+function computeRequirementsHash() {
+  const requirements = getRequirements();
+  const activeReqs = requirements.filter(r => r.active);
+  // Simple hash: JSON stringify the relevant fields
+  const hashInput = JSON.stringify(
+    activeReqs.map(r => ({
+      id: r.id,
+      amenities: r.amenities,
+      miles: r.miles,
+      operator: r.operator
+    }))
+  );
+  return hashInput;
+}
+
+function updateProcessStatus() {
+  const processStatusEl = document.getElementById("process-status");
+  if (!processStatusEl) return;
+
+  const currentHash = computeRequirementsHash();
+  state.requirementsHash = currentHash;
+
+  if (state.lastScoredHash === null) {
+    processStatusEl.textContent = "Not processed";
+    processStatusEl.className = "process-status status-none";
+  } else if (currentHash === state.lastScoredHash) {
+    processStatusEl.textContent = "Up to date";
+    processStatusEl.className = "process-status status-current";
+  } else {
+    processStatusEl.textContent = "Outdated";
+    processStatusEl.className = "process-status status-outdated";
+  }
 }
