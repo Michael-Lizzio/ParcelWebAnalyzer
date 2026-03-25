@@ -72,8 +72,6 @@ The original King County parcel dataset includes over 500,000 parcels across man
   - Find all types of values that could be a home / residential prosperity (I downloaded a goejson and then ran a script to print out all PREUSE_DES types and their count).
   - Create a SQL Query to filter for the parcels you want.(Shown below)
 
-![][image3]
-
 ### **Step C \- Export**
 
 - Export selected features to a new dataset to use in the Web App (Seattle_Residential_Parcels.gpkg).
@@ -181,7 +179,7 @@ Clicking a parcel displays:
 
 3. **Cluster bias appears when food dominates**  
    When restaurant amenities are top priority, parcels near commercial clusters score very high even if they conflict with a quiet streets preference (which isn’t implemented but can be sorta shown by not wanting to be within 0.1 mile of a bus stop (at main streets).  
-   ![][image7]
+   ![][image8]
 
 ## **5\. Discussion**
 
@@ -251,8 +249,8 @@ The Parcel Web Analyzer is a tool that tries to help show where the best place t
 
 - Source code repository: https://github.com/Michael-Lizzio/ParcelWebAnalyzer
 
-[image3]: images/Screenshot%202025-12-08%20231227.png
-[image4]: images/Screenshot%202025-12-08%20231307.png
-[image5]: images/Screenshot%202025-12-08%20231405.png
-[image6]: images/Screenshot%202025-12-08%20232743.png
+[image4]: images/Screenshot%202025-12-08%20231227.png
+[image5]: images/Screenshot%202025-12-08%20231307.png
+[image6]: images/Screenshot%202025-12-08%20231405.png
 [image7]: images/Screenshot%202025-12-08%20231307.png
+[image8]: images/Screenshot%202025-12-08%20232743.png
